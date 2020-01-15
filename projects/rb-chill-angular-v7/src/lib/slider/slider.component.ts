@@ -93,9 +93,9 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
 
   //-------/////////////////////////////////////////////////////////
   // slider Types
-  @Input("backgroundElementsSlider") set backgroundElementsSliderSetter(backgroundElementsSlider){
+  @Input("backgroundElementSlider") set backgroundElementsSliderSetter(backgroundElementSlider){
     this.displayContent = "-webkit-inline-box"
-    this.sliderType = "backgroundElementsSlider"
+    this.sliderType = "backgroundElementSlider"
   }
   @Input("backgroundSlider") set backgroundSliderSetter(backgroundSlider) {
     this.displayContent = "inline-block";
@@ -368,7 +368,7 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
       this.sliderChangeBackgroundLoop()
     } else if (this.sliderType == 'elementSlider') {
       this.sliderChangePerElement()
-    } else if(this.sliderType == 'backgroundElementsSlider'){
+    } else if(this.sliderType == 'backgroundElementSlider'){
       this.sliderChangeBackgroundElements()
     }
     if (this.doesTimerNeedReconfig) {
