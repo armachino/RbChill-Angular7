@@ -133,6 +133,76 @@
           }
         }
       }
+    },
+    "RbChillAngular7": {
+      "root": "projects/rb-chill-angular7",
+      "sourceRoot": "projects/rb-chill-angular7/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/rb-chill-angular7/tsconfig.lib.json",
+            "project": "projects/rb-chill-angular7/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/rb-chill-angular7/src/test.ts",
+            "tsConfig": "projects/rb-chill-angular7/tsconfig.spec.json",
+            "karmaConfig": "projects/rb-chill-angular7/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/rb-chill-angular7/tsconfig.lib.json",
+              "projects/rb-chill-angular7/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    },
+    "RbChillAngularV7": {
+      "root": "projects/rb-chill-angular-v7",
+      "sourceRoot": "projects/rb-chill-angular-v7/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/rb-chill-angular-v7/tsconfig.lib.json",
+            "project": "projects/rb-chill-angular-v7/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/rb-chill-angular-v7/src/test.ts",
+            "tsConfig": "projects/rb-chill-angular-v7/tsconfig.spec.json",
+            "karmaConfig": "projects/rb-chill-angular-v7/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/rb-chill-angular-v7/tsconfig.lib.json",
+              "projects/rb-chill-angular-v7/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "RbChill"

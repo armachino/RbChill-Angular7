@@ -17,6 +17,20 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "rb-chill-angular7": [
+        "dist/rb-chill-angular7"
+      ],
+      "rb-chill-angular7/*": [
+        "dist/rb-chill-angular7/*"
+      ],
+      "rb-chill-angular-v7": [
+        "dist/rb-chill-angular-v7"
+      ],
+      "rb-chill-angular-v7/*": [
+        "dist/rb-chill-angular-v7/*"
+      ]
+    }
   }
 }

@@ -1,0 +1,422 @@
+import { Component, OnInit, HostListener, ElementRef, Renderer2, ViewChild, Input, AfterContentChecked, AfterContentInit, HostBinding, AfterViewInit, OnDestroy, AfterViewChecked } from "@angular/core";
+
+class ElementContent {
+  width: number = 0
+  marginRight: number = 0
+  marginLeft: number = 0
+  totalWidth: number = 0
+}
+
+@Component({
+  selector: "chill-slider",
+  templateUrl: "./slider.component.html",
+  styleUrls: ["./slider.component.css"]
+})
+export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, AfterViewInit {
+  SliderStatus: string = "End";
+  sliderType: string = '';
+  StartClientX: number = 0;
+  DeltaX: number = 0;
+  StoreWidth: number = 0;
+  SlideCount: number = 0;
+  currentSlide: number = 0;
+  slidesDivWidth: number = 0;
+
+  outerHtmlArray: Array<any> = [];
+  displayContent: string = '';
+  buttonStatus: string = ''
+  defaultButton: boolean = false;
+  fullButtonCounter: number = 0
+
+  backgroundImage: string = ''
+  backgroundColor: string = ''
+
+  elementsContentArray: Array<ElementContent> = []
+
+  totalSlidesWidth: number = 0;
+
+  elIndex: number = 0
+  time: number = 0
+  timerStatus: string = ''
+
+  doesTimerNeedReconfig = false;
+  intervalRef = null
+
+  constructor(private elementRef: ElementRef, private renederer: Renderer2) { }
+
+  ngOnInit() {
+
+  }
+
+  ngAfterContentInit() {
+    this.slides.nativeElement.addEventListener(
+      "mousedown",
+      this.mouseEnter.bind(this)
+    );
+    this.slides.nativeElement.addEventListener(
+      "mousemove",
+      this.mouseMove.bind(this)
+    );
+    this.slides.nativeElement.addEventListener(
+      "mouseup",
+      this.mouseUp.bind(this)
+    );
+    this.slides.nativeElement.addEventListener(
+      "mouseleave",
+      this.mouseLeave.bind(this)
+    );
+    this.slides.nativeElement.addEventListener(
+      "dragover",
+      (event) => {
+        event.preventDefault()
+      }, { capture: true }
+    );
+
+
+    this.addSlidesContent()
+
+  }
+
+
+  ngAfterViewInit(): void {
+    // this.buttonManagement()
+    this.timerManagement()
+  }
+
+  ngOnDestroy() {
+    this.nextBtn.removeEventListener()
+    this.previousBtn.removeEventListener()
+
+  }
+
+  //-------/////////////////////////////////////////////////////////
+
+  @Input("backgroundSlider") set backgroundSliderSetter(backgroundSlider) {
+    this.displayContent = "inline-block";
+    this.sliderType = "backgroundSlider";
+  }
+  @Input("customSlider") set customSliderSetter(customSlider) {
+    this.displayContent = "-webkit-inline-box";
+    this.sliderType = "customSlider";
+  }
+  @Input('loopSlider') set loopSliderSetter(loopSlider) {
+    this.sliderType = 'loopSlider'
+  }
+  @Input("perElementSlider") set perElementSliderSetter(perElementSlider) {
+    this.sliderType = 'perElementSlider'
+    this.displayContent = "-webkit-inline-box";
+  }
+
+  //-------/////////////////////////////////////////////////////////
+  @Input("nextBtn") nextBtn
+  @Input("previousBtn") previousBtn
+
+  @Input("defaultButton") set sliderButtonSetter(sliderButton) {
+    this.defaultButton = true;
+  }
+  @Input("elementButton") set elementButoonSetter(elementButton) {
+    this.buttonStatus = 'elementButton'
+  }
+  @Input('backgroundButton') set backgroundButtonSetter(backgroundButton) {
+    this.buttonStatus = 'backgroundButton'
+  }
+
+  //-------/////////////////////////////////////////////////////////
+
+  @Input('elementTimeout') set elementTimeoutSetter(elementTimeout) {
+    this.timerStatus = 'elementTimeout'
+    this.time = elementTimeout
+    // console.log('elementTimeout-------', elementTimeout)
+
+  }
+
+  @Input('backgroundTimeout') set backgroundTimeoutSetter(backgroundTimeout) {
+    this.timerStatus = 'backgroundTimeout'
+    this.time = backgroundTimeout
+    // console.log('backgroundTimeout-------', backgroundTimeout)
+  }
+
+  //-------/////////////////////////////////////////////////////////
+  @Input('backgroundColor') set backgroundColorSetter(backgroundColor) {
+    this.backgroundColor = backgroundColor
+  }
+
+  @Input('backgroundImage') set backgroundImageSetter(backgroundImage) {
+    this.backgroundImage = backgroundImage
+  }
+  //-------/////////////////////////////////////////////////////////
+
+  @ViewChild("slides") slides: ElementRef
+  @ViewChild("slider") slider: ElementRef
+
+
+  mouseEnter(event: MouseEvent) {
+    // console.log("slider Start");
+    if (this.SliderStatus == "End") {
+      this.SliderStatus = "Start";
+      this.StartClientX = event.clientX;
+    }
+    // console.log("widthh", this.slidesDivWidth);
+  }
+
+  mouseMove(event: MouseEvent) {
+    this.DeltaX = this.StartClientX - event.clientX;
+    if (this.SliderStatus == "Start" && this.DeltaX != 0) {
+      this.SliderStatus = "Changing";
+      // console.log(this.SliderStatus)
+      this.slides.nativeElement.addEventListener('click', (event) => {
+        event.preventDefault()
+      }, { once: true })
+
+      // console.log(this.slides);
+    }
+  }
+
+  mouseUp(event: MouseEvent) {
+    if (this.SliderStatus == "Start") {
+      this.SliderStatus = "End";
+    } else if (this.SliderStatus == "Changing") {
+      // console.log("slider End");
+      this.sliderManagement()
+
+    }
+  }
+
+  mouseLeave(event) {
+    if (this.SliderStatus == "Changing") {
+      this.sliderManagement();
+    }
+  }
+
+  addSlidesContent() {
+    this.SlideCount = this.slides.nativeElement.children.length;
+    this.slidesDivWidth = this.slides.nativeElement.clientWidth;
+    // this.slidesElementsWidth = this.slides.nativeElement.children[0].clientWidth;
+    let childNodesObj = this.slides.nativeElement.childNodes
+    let slidesChildren = this.slides.nativeElement.children
+    let childMarginLeft: number
+    let childMarginRight: number
+    let childWidth: number
+    let elementContentObj: ElementContent
+
+    for (let child of slidesChildren) {
+      childMarginLeft = parseInt(window.getComputedStyle(child).getPropertyValue("margin-left"))
+      childMarginRight = parseInt(window.getComputedStyle(child).getPropertyValue("margin-right"))
+      childWidth = parseInt(window.getComputedStyle(child).getPropertyValue("width"))
+      elementContentObj = { width: childWidth, marginLeft: childMarginLeft, marginRight: childMarginRight, totalWidth: childMarginLeft + childMarginRight + childWidth }
+      this.elementsContentArray.push(elementContentObj)
+
+      this.totalSlidesWidth += childMarginLeft + childMarginRight + childWidth
+    }
+    // console.log('arayyy---', this.elementsContentArray)
+
+
+    for (let x of childNodesObj) {
+      this.outerHtmlArray.push(x["outerHTML"]);
+    }
+  }
+  //------------------///////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////
+  timerManagement() {
+    // console.log('timerStatuss------', this.timerStatus)
+
+    if (this.timerStatus == 'elementTimeout') {
+      this.perElementTimer()
+    } else if (this.timerStatus == 'backgroundTimeout') {
+      this.backgroundTimer()
+    }
+  }
+
+
+  perElementTimer() {
+    // console.log('wtfffff')
+
+    if (this.intervalRef !== null) {
+      clearInterval(this.intervalRef)
+    }
+    this.intervalRef = setInterval(() => {
+      if (this.SliderStatus == 'Changing') {
+        // console.log('nemishe beram', this.intervalRef)
+        // console.log('ino man badan baiad ok konam')
+        this.doesTimerNeedReconfig = true
+        if (this.intervalRef !== null) {
+          clearInterval(this.intervalRef)
+        }
+      } else {
+        // console.log('raftim ===>')
+        this.perElementButton(1)
+      }
+    }, this.time)
+  }
+
+  backgroundTimer() {
+    if (this.intervalRef !== null) {
+      clearInterval(this.intervalRef)
+    }
+    this.intervalRef = setInterval(() => {
+      if (this.SliderStatus == 'Changing') {
+        // console.log('nemishe beram', this.intervalRef)
+        // console.log('ino man badan baiad ok konam')
+        this.doesTimerNeedReconfig = true
+        if (this.intervalRef !== null) {
+          clearInterval(this.intervalRef)
+        }
+      } else {
+        // console.log('raftim ===>')
+        this.FullWidthButton(1)
+      }
+    }, this.time)
+  }
+
+  //------------------///////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////
+  buttonManagement(x?) {
+    // console.log('buttonManagement---')
+    if (this.buttonStatus == 'elementButton') {
+      if (this.defaultButton) {
+        this.perElementButton(x)
+      } else {
+        this.nextBtn.addEventListener('click', () => { this.perElementButton(1) })
+        this.previousBtn.addEventListener('click', () => { this.perElementButton(-1) })
+      }
+
+    } else if (this.buttonStatus == 'backgroundButton') {
+      if (this.defaultButton) {
+        this.FullWidthButton(x)
+      } else {
+        this.nextBtn.addEventListener('click', () => { this.FullWidthButton(1) })
+        this.previousBtn.addEventListener('click', () => { this.FullWidthButton(-1) })
+      }
+    }
+  }
+
+  FullWidthButton(x) {
+    if ((this.currentSlide + x) * this.slidesDivWidth > this.totalSlidesWidth - this.slidesDivWidth) {
+      // this.StoreWidth = (this.totalSlidesWidth) - this.slidesDivWidth;
+      this.StoreWidth = 0
+      this.currentSlide -= this.fullButtonCounter
+      this.fullButtonCounter = 0
+    } else if ((this.currentSlide + x) * this.slidesDivWidth < 0) {
+      this.StoreWidth = 0
+    } else {
+      this.fullButtonCounter += x
+      this.currentSlide = this.currentSlide + x;
+      this.StoreWidth = this.currentSlide * this.slidesDivWidth;
+    }
+    this.SliderStatus = "End";
+
+
+  }
+
+  perElementButton(x) {
+
+    if (this.StoreWidth + x * (this.elementsContentArray[0].totalWidth) > (this.totalSlidesWidth) - this.slidesDivWidth) {
+      // this.StoreWidth = (this.totalSlidesWidth) - this.slidesDivWidth
+      
+      this.StoreWidth = 0
+      this.elIndex = 0
+
+    } else if (this.StoreWidth + x * (this.elementsContentArray[0].totalWidth) < 0) {
+      this.StoreWidth = 0
+
+    } else {
+      this.StoreWidth += (x == 1) ? this.elementsContentArray[0].totalWidth : -(this.elementsContentArray[0].totalWidth)
+      this.elIndex += x
+    }
+    this.SliderStatus = "End"
+    // console.log('storeWidth-', this.StoreWidth)
+    //   if ( this.elIndex+ x >= 0 && this.elementsContentArray.length > this.elIndex + x-1 && this.elementsContentArray[this.elIndex +x].totalWidth ){
+    //     this.elIndex +=x
+    //     this.StoreWidth += (x==1 ) ? this.elementsContentArray[this.elIndex].totalWidth : -(this.elementsContentArray[this.elIndex].totalWidth)
+
+    //   }
+  }
+
+  //-----------------///////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////
+  sliderManagement() {
+
+    if (this.sliderType === 'backgroundSlider') {
+      this.sliderChangeBackgound()
+    } else if (this.sliderType === 'customSlider') {
+      this.SliderChangeCustom()
+    } else if (this.sliderType === 'loopSlider') {
+      this.sliderChangeBackgroundLoop()
+    } else if (this.sliderType == 'perElementSlider') {
+      this.sliderChangePerElement()
+    }
+    if (this.doesTimerNeedReconfig) {
+      this.timerManagement()
+    }
+  }
+
+  sliderChangeBackgound() {
+    // slider will change with full element width
+    this.currentSlide = this.DeltaX > 0 ? this.currentSlide + 1 : this.currentSlide - 1;
+    this.currentSlide = Math.min(Math.max(this.currentSlide, 0), this.SlideCount - 1);
+    this.StoreWidth = this.currentSlide * this.slidesDivWidth;
+    this.DeltaX = 0;
+    this.SliderStatus = "End";
+
+  }
+
+  sliderChangePerElement() {
+    this.SliderStatus = "End"
+    let width = 0
+    if (this.StoreWidth + this.DeltaX > (this.totalSlidesWidth) - this.slidesDivWidth) {
+      this.StoreWidth = (this.totalSlidesWidth) - this.slidesDivWidth
+    } else if (this.StoreWidth + this.DeltaX < 0) {
+      this.StoreWidth = 0
+    } else {
+      for (let item of this.elementsContentArray) {
+        width += item.totalWidth
+        if (this.StoreWidth + this.DeltaX <= width) {
+          let tempStore = this.StoreWidth
+          this.StoreWidth = (this.StoreWidth + this.DeltaX < (2 * width - item.totalWidth) / 2) ? width - item.totalWidth : width
+          ///////////////////////////////////////////
+          break
+        }
+      }
+    }
+  }
+
+  SliderChangeCustom() {
+    // slider will change with custom size and free dragging
+    this.SliderStatus = "End";
+    if (this.StoreWidth + this.DeltaX > (this.totalSlidesWidth) - this.slidesDivWidth) {
+      // if (this.StoreWidth + this.DeltaX > (this.SlideCount * this.slidesElementsWidth) - this.slidesDivWidth) {
+      this.StoreWidth = (this.totalSlidesWidth) - this.slidesDivWidth
+      // this.StoreWidth = (this.SlideCount * this.slidesElementsWidth) - this.slidesDivWidth
+    } else if (this.StoreWidth + this.DeltaX < 0) {
+      this.StoreWidth = 0
+    } else {
+      this.StoreWidth = this.StoreWidth + this.DeltaX;
+    }
+
+  }
+
+  sliderChangeBackgroundLoop() {
+    // slider will change with full element width and it's loop slider
+    this.SliderStatus = "End";
+    this.currentSlide = this.DeltaX > 0 ? this.currentSlide + 1 : this.currentSlide - 1;
+    this.StoreWidth = this.currentSlide * this.slidesDivWidth;
+    this.DeltaX = 0;
+
+    // if(this.currentSlide == 0 || this.currentSlide == this.SlideCount * 2 ){
+    //   this.SliderStatus =='LoopChanage'
+    //   this.StoreWidth = this.slidesDivWidth * this.SlideCount
+    //   this.currentSlide = this.SlideCount
+    // }
+    setTimeout(() => {
+      if (this.currentSlide == 0 || this.currentSlide == this.SlideCount * 2) {
+        this.SliderStatus = 'LoopChanage'
+        this.StoreWidth = this.slidesDivWidth * this.SlideCount
+        this.currentSlide = this.SlideCount
+      }
+
+    }, 0);
+
+  }
+
+
+}

@@ -1,0 +1,107 @@
+
+
+.slider {
+  overflow: hidden;
+  height: inherit;
+  width: inherit;
+  position: relative;
+  user-select: none;
+  /* background-image: url(../../assets/imggg/salon-wallpaper1.jpg); */
+}
+
+#slides {
+  width: 100%;
+  height: 100%;
+  white-space: nowrap;
+}
+
+.right-arrow-div{
+  position: absolute;
+  z-index: 11111;
+  right: 0;
+  height: 100%;
+  width: 135px;
+  cursor: pointer;
+}
+
+.right-arrow{
+  font-size: 70px;
+  color: #cccccc;
+  top: calc(50% - 35px);
+  left: calc(50% - 35px);
+  position: relative;
+  width: 70px;
+  height: 70px;
+
+}
+.left-arrow-div{
+  position: absolute;
+  z-index: 11111;
+  left: 0;
+  height: 100%;
+  width: 135px;
+  cursor: pointer;
+
+}
+
+.left-arrow{
+  font-size: 70px;
+  color: #cccccc;
+  top: calc(50% - 35px);
+  left: calc(50% - 35px);
+  position: relative;
+  width: 70px;
+  height: 70px;
+}
+
+.arrow-right {
+    width: 30px;
+    height: 30px;
+    top: calc(50% - 20px);
+    left: calc(50% - 20px);
+  position: relative;
+
+  border-right: 5px solid #cccccc;
+  transform: rotate(45deg);
+  border-top: 5px solid #cccccc;
+  display: inline-block;
+}
+.arrow-left{
+  width: 30px;
+  height: 30px;
+  top: calc(50% - 20px);
+  left: calc(50% - 20px);
+  position: relative;
+
+  border-right: 5px solid #cccccc;
+  transform: rotate(-135deg);
+  border-top: 5px solid #cccccc;
+  display: inline-block;
+
+}
+
+/* .right-arrow-div:hover .right-arrow , .left-arrow-div:hover .left-arrow {
+  animation: button 1s infinite
+}
+
+@keyframes button {
+  0% {
+    transform: rotateX(0deg)
+  }
+
+  25% {
+    transform: rotateX(90deg)
+  }
+
+  50% {
+    transform: rotateX(180deg)
+  }
+
+  75% {
+    transform: rotateX(270deg)
+  }
+
+  100% {
+    transform: rotateX(360deg)
+  }
+} */

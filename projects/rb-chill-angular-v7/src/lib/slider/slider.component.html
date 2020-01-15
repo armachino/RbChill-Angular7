@@ -1,0 +1,24 @@
+<div class="slider" [ngStyle]="{
+  'background-color':backgroundColor ,
+  'background-image': 'url('+ backgroundImage+')' 
+}" #slider>
+
+  <div *ngIf="defaultButton" class="right-arrow-div" (click)='buttonManagement(1)'>
+    <div class="arrow-right ">
+    </div>
+  </div>
+  <div *ngIf="defaultButton" class="left-arrow-div" (click)='buttonManagement(-1)'>
+    <div class="arrow-left "></div>
+  </div>
+
+  <div id="slides" draggable="false" [ngStyle]="{
+    'transform': 'translateX('+ ( SliderStatus == 'Changing' ?  -(DeltaX + StoreWidth)  :  -StoreWidth ) +'px)',
+    'transition':( SliderStatus == 'End'   ? 'all .4s ease-out' : ''),
+    'cursor': (SliderStatus == 'Changing') ?  'grab' : 'auto',
+    'display': displayContent 
+  }" #slides>
+    <ng-content></ng-content>
+
+  </div>
+
+</div>
