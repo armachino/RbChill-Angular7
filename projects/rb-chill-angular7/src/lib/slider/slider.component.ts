@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef, Renderer2, ViewChild, Input, AfterContentChecked, AfterContentInit, HostBinding, AfterViewInit, OnDestroy, AfterViewChecked, DoCheck } from "@angular/core";
+import { Component, OnInit, ElementRef, Renderer2, ViewChild, Input, AfterContentInit, AfterViewInit } from "@angular/core";
 
 class ElementContent {
   width: number = 0
@@ -12,7 +12,7 @@ class ElementContent {
   templateUrl: "./slider.component.html",
   styleUrls: ["./slider.component.css"]
 })
-export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit, DoCheck {
+export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit {
   SliderStatus: string = "End";
   sliderType: string = '';
   StartClientX: number = 0;
@@ -43,27 +43,16 @@ export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit,
   intervalRef = null
 
   sliderSize: any
-
-  constructor(private elementRef: ElementRef, private renederer: Renderer2) { }
+  // responsive : boolean = false
+  constructor() { }
 
   ngOnInit() {
     console.log("------ HELLO FROM RbChill Slider :) ------ ")
 
   }
 
-  ngDoCheck(): void {
-    if (this.sliderType == 'elementSlider-Responsive') {
-      let sliderSizeTemp = this.slider.nativeElement.offsetWidth
-      let width = 0
-      for (let item of this.elementsContentArray) {
-        width += item.totalWidth
-        if (sliderSizeTemp < width) {
-          this.sliderSize = width - item.totalWidth
-          break
-        }
-      }
-    }
-  }
+
+  
 
   ngAfterContentInit() {
     this.slides.nativeElement.addEventListener(
@@ -99,6 +88,21 @@ export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit,
 
     this.addSlidesContent()
 
+    // if (this.responsive) {
+    //   console.log('ngDocheckngDocheckngDocheck')
+    //   let sliderSizeTemp = this.slider.nativeElement.offsetWidth
+    //   let width = 0
+    //   for (let item of this.elementsContentArray) {
+    //     width += item.totalWidth
+    //     if (sliderSizeTemp < width) {
+    //       this.sliderSize = width - item.totalWidth
+    //       console.log('sliderSize',this.sliderSize)
+    //       break
+    //     }
+    //   }
+    // }
+
+
   }
 
 
@@ -125,10 +129,7 @@ export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit,
     this.sliderType = 'elementSlider'
     this.displayContent = "-webkit-inline-box";
   }
-  @Input("elementSlider-Responsive") set perElementSliderResponsiveSetter(elementSlider) {
-    this.sliderType = 'elementSlider-Responsive'
-    this.displayContent = "-webkit-inline-box";
-  }
+
   @Input("freeSlider") set customSliderSetter(freeSlider) {
     this.displayContent = "-webkit-inline-box";
     this.sliderType = "freeSlider";
@@ -176,13 +177,17 @@ export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit,
     this.backgroundImage = backgroundImage
   }
   //-------/////////////////////////////////////////////////////////
+  // @Input("responsive") set responsiveSetter(responsive) {
+  //   this.responsive =true
+  //   console.log('responsive')
+  // }
 
   @ViewChild("slides") slides: ElementRef
   @ViewChild("slider") slider: ElementRef
 
-  onResize(event) {
+  // onResize(event) {
 
-  }
+  // }
 
   touchstart(event: TouchEvent) {
     // console.log('touchstart')
@@ -415,13 +420,14 @@ export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit,
       this.sliderChangeBackgound()
     } else if (this.sliderType === 'freeSlider') {
       this.sliderChangeFree()
-    } else if (this.sliderType === 'loopSlider') {
-      this.sliderChangeBackgroundLoop()
-    } else if (this.sliderType == 'elementSlider') {
+    }else if (this.sliderType == 'elementSlider') {
       this.sliderChangePerElement()
     } else if (this.sliderType == 'backgroundElementSlider') {
       this.sliderChangeBackgroundElements()
     }
+    // else if (this.sliderType === 'loopSlider') {
+    //   this.sliderChangeBackgroundLoop()
+    // } 
     if (this.doesTimerNeedReconfig) {
       this.timerManagement()
     }
@@ -484,26 +490,26 @@ export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit,
     }
   }
 
-  sliderChangeBackgroundLoop() {
-    // slider will change with full element width and it's loop slider
-    this.SliderStatus = "End";
-    this.currentSlide = this.DeltaX > 0 ? this.currentSlide + 1 : this.currentSlide - 1;
-    this.StoreWidth = this.currentSlide * this.slidesDivWidth;
-    this.DeltaX = 0;
+  // sliderChangeBackgroundLoop() {
+  //   // slider will change with full element width and it's loop slider
+  //   this.SliderStatus = "End";
+  //   this.currentSlide = this.DeltaX > 0 ? this.currentSlide + 1 : this.currentSlide - 1;
+  //   this.StoreWidth = this.currentSlide * this.slidesDivWidth;
+  //   this.DeltaX = 0;
 
-    // if(this.currentSlide == 0 || this.currentSlide == this.SlideCount * 2 ){
-    //   this.SliderStatus =='LoopChanage'
-    //   this.StoreWidth = this.slidesDivWidth * this.SlideCount
-    //   this.currentSlide = this.SlideCount
-    // }
-    setTimeout(() => {
-      if (this.currentSlide == 0 || this.currentSlide == this.SlideCount * 2) {
-        this.SliderStatus = 'LoopChanage'
-        this.StoreWidth = this.slidesDivWidth * this.SlideCount
-        this.currentSlide = this.SlideCount
-      }
-    }, 0);
-  }
+  //   // if(this.currentSlide == 0 || this.currentSlide == this.SlideCount * 2 ){
+  //   //   this.SliderStatus =='LoopChanage'
+  //   //   this.StoreWidth = this.slidesDivWidth * this.SlideCount
+  //   //   this.currentSlide = this.SlideCount
+  //   // }
+  //   setTimeout(() => {
+  //     if (this.currentSlide == 0 || this.currentSlide == this.SlideCount * 2) {
+  //       this.SliderStatus = 'LoopChanage'
+  //       this.StoreWidth = this.slidesDivWidth * this.SlideCount
+  //       this.currentSlide = this.SlideCount
+  //     }
+  //   }, 0);
+  // }
 
 
 }

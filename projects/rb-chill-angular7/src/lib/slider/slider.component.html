@@ -12,7 +12,7 @@
   </div>
 
   <div id="slides" draggable="false" [ngStyle]="{
-    'transform': 'translateX('+ ( SliderStatus == 'Changing' ?  -(DeltaX + StoreWidth)  :  -StoreWidth ) +'px)',
+  'transform': 'translateX('+ ( SliderStatus == 'Changing' ?  -(DeltaX + StoreWidth)  :  -StoreWidth ) +'px)',
     'transition':( SliderStatus == 'End'   ? 'all .4s ease-out' : ''),
     'cursor': (SliderStatus == 'Changing') ?  'grab' : 'auto',
     'display': displayContent 
@@ -20,5 +20,4 @@
     <ng-content></ng-content>
 
   </div>
-
 </div>
