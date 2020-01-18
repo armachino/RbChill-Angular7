@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ElementRef, Renderer2, ViewChild, Input, AfterContentChecked, AfterContentInit, HostBinding, AfterViewInit, OnDestroy, AfterViewChecked } from "@angular/core";
+import { Component, OnInit, HostListener, ElementRef, Renderer2, ViewChild, Input, AfterContentChecked, AfterContentInit, HostBinding, AfterViewInit, OnDestroy, AfterViewChecked, DoCheck } from "@angular/core";
 
 class ElementContent {
   width: number = 0
@@ -12,7 +12,7 @@ class ElementContent {
   templateUrl: "./slider.component.html",
   styleUrls: ["./slider.component.css"]
 })
-export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, AfterViewInit {
+export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit, DoCheck {
   SliderStatus: string = "End";
   sliderType: string = '';
   StartClientX: number = 0;
@@ -42,10 +42,27 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
   doesTimerNeedReconfig = false;
   intervalRef = null
 
+  sliderSize: any
+
   constructor(private elementRef: ElementRef, private renederer: Renderer2) { }
 
   ngOnInit() {
     console.log("------ HELLO FROM RbChill Slider :) ------ ")
+
+  }
+
+  ngDoCheck(): void {
+    if (this.sliderType == 'elementSlider-Responsive') {
+      let sliderSizeTemp = this.slider.nativeElement.offsetWidth
+      let width = 0
+      for (let item of this.elementsContentArray) {
+        width += item.totalWidth
+        if (sliderSizeTemp < width) {
+          this.sliderSize = width - item.totalWidth
+          break
+        }
+      }
+    }
   }
 
   ngAfterContentInit() {
@@ -65,7 +82,7 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
       "mouseleave",
       this.mouseLeave.bind(this)
     );
-// //////////
+    // //////////
     this.slides.nativeElement.addEventListener(
       "touchstart",
       this.touchstart.bind(this)
@@ -89,18 +106,14 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
     if (!this.defaultButton) {
       this.buttonManagement()
     }
+
     this.timerManagement()
   }
 
-  ngOnDestroy() {
-    this.nextBtn.removeEventListener()
-    this.previousBtn.removeEventListener()
-
-  }
 
   //-------/////////////////////////////////////////////////////////
   // slider Types
-  @Input("backgroundElementSlider") set backgroundElementsSliderSetter(backgroundElementSlider){
+  @Input("backgroundElementSlider") set backgroundElementsSliderSetter(backgroundElementSlider) {
     this.displayContent = "-webkit-inline-box"
     this.sliderType = "backgroundElementSlider"
   }
@@ -110,6 +123,10 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
   }
   @Input("elementSlider") set perElementSliderSetter(elementSlider) {
     this.sliderType = 'elementSlider'
+    this.displayContent = "-webkit-inline-box";
+  }
+  @Input("elementSlider-Responsive") set perElementSliderResponsiveSetter(elementSlider) {
+    this.sliderType = 'elementSlider-Responsive'
     this.displayContent = "-webkit-inline-box";
   }
   @Input("freeSlider") set customSliderSetter(freeSlider) {
@@ -128,7 +145,7 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
     this.defaultButton = true;
   }
   //// button functionality type
-  
+
   @Input("elementButton") set elementButoonSetter(elementButton) {
     this.buttonStatus = 'elementButton'
   }
@@ -163,7 +180,11 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
   @ViewChild("slides") slides: ElementRef
   @ViewChild("slider") slider: ElementRef
 
-  touchstart(event : TouchEvent){
+  onResize(event) {
+
+  }
+
+  touchstart(event: TouchEvent) {
     // console.log('touchstart')
     if (this.SliderStatus == "End") {
       this.SliderStatus = "Start";
@@ -172,7 +193,7 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
     }
     // 
   }
-  touchmove(event : TouchEvent){
+  touchmove(event: TouchEvent) {
     this.DeltaX = this.StartClientX - event.touches[0].clientX;
     // console.log('this.DeltaX',this.DeltaX)
     if (this.SliderStatus == "Start" && (this.StartClientX - event.touches[0].clientX) != 0) {
@@ -196,7 +217,7 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
     }
     // console.log("widthh", this.slidesDivWidth);
   }
-  
+
   mouseMove(event: MouseEvent) {
     // this.DeltaX = this.StartClientX - event.clientX;
     this.DeltaX = this.StartClientX - event.clientX;
@@ -211,7 +232,7 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
 
     // decrease DletaX for less overflowing slider
     // this.condition=(this.StoreWidth + this.DeltaX > this.totalSlidesWidth - this.slidesDivWidth || this.StoreWidth + this.DeltaX < 0 )
-    
+
     // if (this.StoreWidth + this.StartClientX - event.clientX > this.totalSlidesWidth - this.slidesDivWidth || this.StoreWidth + this.StartClientX - event.clientX < 0 ){
     //   this.DeltaX = (this.StartClientX - event.clientX)/3
     // }else{
@@ -241,10 +262,10 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
     // this.slidesDivWidth = this.slides.nativeElement.clientWidth;
     this.slidesDivWidth = parseFloat(window.getComputedStyle(this.slides.nativeElement).getPropertyValue("width"))
 
-// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // console.log(this.slides)
     // console.log(this.slides.nativeElement.clientWidth)
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
     // this.slidesElementsWidth = this.slides.nativeElement.children[0].clientWidth;
     // let childNodesObj = this.slides.nativeElement.childNodes
     let slidesChildren = this.slides.nativeElement.children
@@ -398,7 +419,7 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
       this.sliderChangeBackgroundLoop()
     } else if (this.sliderType == 'elementSlider') {
       this.sliderChangePerElement()
-    } else if(this.sliderType == 'backgroundElementSlider'){
+    } else if (this.sliderType == 'backgroundElementSlider') {
       this.sliderChangeBackgroundElements()
     }
     if (this.doesTimerNeedReconfig) {
@@ -408,7 +429,7 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
 
   sliderChangeBackgound() {
     // slider will change with full element width
-    console.log('div',this.slidesDivWidth)
+    console.log('div', this.slidesDivWidth)
 
     this.currentSlide = this.DeltaX > 0 ? this.currentSlide + 1 : this.currentSlide - 1;
     this.currentSlide = Math.min(Math.max(this.currentSlide, 0), this.SlideCount - 1);
@@ -429,7 +450,7 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
       for (let item of this.elementsContentArray) {
         width += item.totalWidth
         if (this.StoreWidth + this.DeltaX <= width) {
-          this.StoreWidth = (this.StoreWidth + this.DeltaX <  width - (item.totalWidth / 2)) ? width - item.totalWidth : width;
+          this.StoreWidth = (this.StoreWidth + this.DeltaX < width - (item.totalWidth / 2)) ? width - item.totalWidth : width;
           break
         }
       }
@@ -452,14 +473,14 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
 
   }
 
-  sliderChangeBackgroundElements(){
+  sliderChangeBackgroundElements() {
     this.SliderStatus = "End";
-    if (this.StoreWidth + this.slidesDivWidth > this.totalSlidesWidth - this.slidesDivWidth && this.DeltaX >0) {
+    if (this.StoreWidth + this.slidesDivWidth > this.totalSlidesWidth - this.slidesDivWidth && this.DeltaX > 0) {
       this.StoreWidth = (this.totalSlidesWidth) - this.slidesDivWidth
-    } else if(this.StoreWidth - this.slidesDivWidth < 0 && this.DeltaX < 0){
+    } else if (this.StoreWidth - this.slidesDivWidth < 0 && this.DeltaX < 0) {
       this.StoreWidth = 0
     } else {
-      this.StoreWidth = this.DeltaX>0 ? this.StoreWidth + this.slidesDivWidth : this.StoreWidth - this.slidesDivWidth
+      this.StoreWidth = this.DeltaX > 0 ? this.StoreWidth + this.slidesDivWidth : this.StoreWidth - this.slidesDivWidth
     }
   }
 
