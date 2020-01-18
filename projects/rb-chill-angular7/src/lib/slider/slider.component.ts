@@ -65,13 +65,20 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
       "mouseleave",
       this.mouseLeave.bind(this)
     );
-    // this.slides.nativeElement.addEventListener(
-    //   "dragover",
-    //   (event) => {
-    //     event.preventDefault()
-    //   }, { capture: true }
-    // );
-
+// //////////
+    this.slides.nativeElement.addEventListener(
+      "touchstart",
+      this.touchstart.bind(this)
+    );
+    this.slides.nativeElement.addEventListener(
+      "touchmove",
+      this.touchmove.bind(this)
+    );
+    // touchend function is similar to mouseup
+    this.slides.nativeElement.addEventListener(
+      "touchend",
+      this.mouseUp.bind(this)
+    );
 
     this.addSlidesContent()
 
@@ -156,6 +163,29 @@ export class SliderComponent implements OnInit, AfterContentInit, OnDestroy, Aft
   @ViewChild("slides") slides: ElementRef
   @ViewChild("slider") slider: ElementRef
 
+  touchstart(event : TouchEvent){
+    // console.log('touchstart')
+    if (this.SliderStatus == "End") {
+      this.SliderStatus = "Start";
+      this.StartClientX = event.touches[0].clientX;
+      // console.log(this.StartClientX)
+    }
+    // 
+  }
+  touchmove(event : TouchEvent){
+    this.DeltaX = this.StartClientX - event.touches[0].clientX;
+    // console.log('this.DeltaX',this.DeltaX)
+    if (this.SliderStatus == "Start" && (this.StartClientX - event.touches[0].clientX) != 0) {
+      this.SliderStatus = "Changing";
+      // console.log(this.SliderStatus)
+      this.slides.nativeElement.addEventListener('click', (event) => {
+        event.preventDefault()
+      }, { once: true })
+      // console.log(this.slides);
+    }
+
+
+  }
 
   mouseEnter(event: MouseEvent) {
     // console.log("slider Start");
