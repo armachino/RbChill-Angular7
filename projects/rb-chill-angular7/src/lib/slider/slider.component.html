@@ -1,18 +1,23 @@
 <div class="slider" [ngStyle]="{
   'background-color':backgroundColor ,
-  'background-image': 'url('+ backgroundImage+')' 
-}" #slider>
+  'background-image': 'url('+ backgroundImage+')' ,
+  'width': responsive ?  sliderSize+'px':'inherit'
+}" 
 
-  <div *ngIf="defaultButton" class="right-arrow-div" (click)='buttonManagement(1)'>
-    <div class="arrow-right ">
+  #slider>
+
+  <ng-container *ngIf="defaultButton">
+    <div class="right-arrow-div" (click)='buttonManagement(1)'>
+      <div class="arrow-right ">
+      </div>
     </div>
-  </div>
-  <div *ngIf="defaultButton" class="left-arrow-div" (click)='buttonManagement(-1)'>
-    <div class="arrow-left "></div>
-  </div>
+    <div class="left-arrow-div" (click)='buttonManagement(-1)'>
+      <div class="arrow-left "></div>
+    </div>
+  </ng-container>
 
   <div id="slides" draggable="false" [ngStyle]="{
-  'transform': 'translateX('+ ( SliderStatus == 'Changing' ?  -(DeltaX + StoreWidth)  :  -StoreWidth ) +'px)',
+    'transform': 'translateX('+ ( SliderStatus == 'Changing' ?  -(DeltaX + StoreWidth)  :  -StoreWidth ) +'px)',
     'transition':( SliderStatus == 'End'   ? 'all .4s ease-out' : ''),
     'cursor': (SliderStatus == 'Changing') ?  'grab' : 'auto',
     'display': displayContent 
@@ -20,4 +25,5 @@
     <ng-content></ng-content>
 
   </div>
+
 </div>
