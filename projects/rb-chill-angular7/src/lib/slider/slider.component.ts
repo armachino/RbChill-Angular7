@@ -12,7 +12,7 @@ class ElementContent {
   templateUrl: "./slider.component.html",
   styleUrls: ["./slider.component.css"]
 })
-export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit, OnDestroy {
+export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit {
   SliderStatus: string = "End";
   sliderType: string = '';
   StartClientX: number = 0;
@@ -93,55 +93,8 @@ export class SliderComponent implements OnInit, AfterContentInit, AfterViewInit,
     this.changeDetector.detectChanges()
 
   }
-
-  ngOnDestroy(): void {
-    this.slides.nativeElement.removeEventListener(
-      "mousedown",
-      this.mouseEnter.bind(this)
-    );
-    this.slides.nativeElement.removeEventListener(
-      "mousemove",
-      this.mouseMove.bind(this)
-    );
-    this.slides.nativeElement.removeEventListener(
-      "mouseup",
-      this.mouseUp.bind(this)
-    );
-    this.slides.nativeElement.removeEventListener(
-      "mouseleave",
-      this.mouseLeave.bind(this)
-    );
-
-    this.slides.nativeElement.removeEventListener(
-      "touchstart",
-      this.touchstart.bind(this)
-    );
-    this.slides.nativeElement.removeEventListener(
-      "touchmove",
-      this.touchmove.bind(this)
-    );
-
-    this.slides.nativeElement.removeEventListener(
-      "touchend",
-      this.mouseUp.bind(this)
-    );
-    this.slides.nativeElement.removeEventListener('click', (event) => {
-      event.preventDefault()
-    }, { once: true })
-
-    this.slides.nativeElement.removeEventListener('click', (event) => {
-      event.stopPropagation()
-      event.preventDefault()
-    }, { once: true, capture: true })
-
-    this.nextBtn.removeEventListener('click', () => { this.perElementButton(1) })
-    this.previousBtn.removeEventListener('click', () => { this.perElementButton(-1) })
-
-    this.nextBtn && this.nextBtn.removeEventListener('click', () => { this.FullWidthButton(1) })
-    this.previousBtn && this.previousBtn.removeEventListener('click', () => { this.FullWidthButton(-1) })
-
-  }
-
+  
+  
   @Input("backgroundElementSlider") set backgroundElementsSliderSetter(backgroundElementSlider) {
     this.displayContent = "-webkit-inline-box"
     this.sliderType = "backgroundElementSlider"
